@@ -89,4 +89,14 @@ public class CounterController {
         }
     }
 
+    @PostMapping(value = "/loginAction/xxcUserLoginV2")
+    ApiResponse login(HttpServletRequest httpReq, @RequestBody CounterRequest request) {
+        Enumeration<String> headerNames = httpReq.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            logger.info("requestHeader key: {}, value: {}", headerName, httpReq.getHeader(headerName));
+        }
+        return ApiResponse.ok("okkkkkkkkkkkkkk");
+    }
+
 }
