@@ -116,17 +116,16 @@ public class CounterController {
         String iv = request.getIv();
         String key = request.getSessionKey();
         String data = request.getEncryptedData();
-        String result = decrypt(data, key, iv);
 
-        return ApiResponse.ok(JSONObject.parseObject(result));
+        return decrypt(data, key, iv);
     }
 
 
-    public static String decrypt(String encryptedData, String key, String iv) {
+    public static ApiResponse decrypt(String encryptedData, String key, String iv) {
         // 转换密钥和IV为字节数组
         try {
-            byte[] keyBytes = key.getBytes("UTF-8");
-            byte[] ivBytes = iv.getBytes("UTF-8");
+            byte[] keyBytes = Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8));
+            byte[] ivBytes = Base64.getDecoder().decode(iv.getBytes(StandardCharsets.UTF_8));
             // Base64 解码密文
             byte[] cipherBytes = Base64.getDecoder().decode(encryptedData);
             // 初始化 AES 密钥和 IV
@@ -138,9 +137,10 @@ public class CounterController {
             // 执行解密
             byte[] plainBytes = cipher.doFinal(cipherBytes);
             // 返回解密后的明文字符串
-            return new String(plainBytes, StandardCharsets.UTF_8);
+            return new ApiResponse(0,"",new String(plainBytes, StandardCharsets.UTF_8));
         } catch (Exception e) {
-            return e.getMessage();
+            return new ApiResponse(500,e.getMessage(),null);
         }
     }
+
 }
