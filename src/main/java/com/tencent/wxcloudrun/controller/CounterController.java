@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.dto.BodyRequest;
 import com.tencent.wxcloudrun.utils.HttpUtils;
 import org.slf4j.Logger;
@@ -14,8 +15,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.List;
@@ -93,18 +100,47 @@ public class CounterController {
 
 
     @PostMapping(value = "/api/getSessionKey")
-    ApiResponse login(HttpServletRequest httpReq, @RequestBody BodyRequest request) {
-
+    ApiResponse getSessionKey(HttpServletRequest httpReq, @RequestBody BodyRequest request) {
         String jsCode = request.getJsCode();
         String appId = "wx8b4b0fa894795915";
         String secret = "c4aea564db0adf169bff47e1f52d2eec";
         String grantType = "authorization_code";
         String url = String.format("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=%s", appId, secret, jsCode, grantType);
-
         byte[] res = HttpUtils.sendGetRequest(url, null);
-
-
         return ApiResponse.ok(new String(res));
     }
 
+
+    @PostMapping(value = "/api/decryptInfo")
+    ApiResponse decryptInfo(HttpServletRequest httpReq, @RequestBody BodyRequest request) {
+        String iv = request.getIv();
+        String key = request.getSessionKey();
+        String data = request.getEncryptedData();
+        String result = decrypt(data, key, iv);
+
+        return ApiResponse.ok(JSONObject.parseObject(result));
+    }
+
+
+    public static String decrypt(String encryptedData, String key, String iv) {
+        // 转换密钥和IV为字节数组
+        try {
+            byte[] keyBytes = key.getBytes("UTF-8");
+            byte[] ivBytes = iv.getBytes("UTF-8");
+            // Base64 解码密文
+            byte[] cipherBytes = Base64.getDecoder().decode(encryptedData);
+            // 初始化 AES 密钥和 IV
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+            // 配置解密器
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); // PKCS5 等效于 PKCS7
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            // 执行解密
+            byte[] plainBytes = cipher.doFinal(cipherBytes);
+            // 返回解密后的明文字符串
+            return new String(plainBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
 }

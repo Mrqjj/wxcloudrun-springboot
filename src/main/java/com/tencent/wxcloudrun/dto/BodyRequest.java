@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.dto;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 /**
@@ -18,4 +19,15 @@ public class BodyRequest {
 
     private String jsCode;
 
+    private String cloudID;
+
+    private String iv;
+
+    private String rawData;
+
+    private String encryptedData;
+
+    private String sessionKey;
+
+    private JSONObject userInfo;
 }
