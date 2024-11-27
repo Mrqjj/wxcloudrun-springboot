@@ -1,5 +1,7 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.tencent.wxcloudrun.dto.BodyRequest;
+import com.tencent.wxcloudrun.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.tencent.wxcloudrun.config.ApiResponse;
@@ -89,14 +91,20 @@ public class CounterController {
         }
     }
 
-    @PostMapping(value = "/loginAction/xxcUserLoginV2")
-    ApiResponse login(HttpServletRequest httpReq, @RequestBody CounterRequest request) {
-        Enumeration<String> headerNames = httpReq.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            logger.info("requestHeader key: {}, value: {}", headerName, httpReq.getHeader(headerName));
-        }
-        return ApiResponse.ok("okkkkkkkkkkkkkk");
+
+    @PostMapping(value = "/api/getSessionKey")
+    ApiResponse login(HttpServletRequest httpReq, @RequestBody BodyRequest request) {
+
+        String jsCode = request.getJsCode();
+        String appId = "wx8b4b0fa894795915";
+        String secret = "c4aea564db0adf169bff47e1f52d2eec";
+        String grantType = "authorization_code";
+        String url = String.format("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=%s", appId, secret, jsCode, grantType);
+
+        byte[] res = HttpUtils.sendGetRequest(url, null);
+
+
+        return ApiResponse.ok(new String(res));
     }
 
 }
