@@ -248,6 +248,9 @@ public class HttpUtils {
                     } else if (body instanceof String) {
                         HttpEntity entity = new StringEntity(body.toString());
                         httpPost.setEntity(entity);
+                    }else if(body instanceof JSONObject){
+                        HttpEntity entity = new StringEntity(((JSONObject) body).toJSONString());
+                        httpPost.setEntity(entity);
                     }
                 }
 
