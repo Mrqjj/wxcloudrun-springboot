@@ -22,10 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Enumeration;
-import java.util.Optional;
-import java.util.List;
+import java.util.*;
 
 /**
  * counter控制器
@@ -139,7 +136,9 @@ public class CounterController {
         String url = "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=" + accessToken;
         JSONObject body = new JSONObject();
         body.put("code", code);
-        byte[] res = HttpUtils.sendPostRequest(url,body,null);
+        HashMap headerMap = new HashMap();
+        headerMap.put("Content-Type", "application/json");
+        byte[] res = HttpUtils.sendPostRequest(url,body.toJSONString(),headerMap);
         String result = new String(res, StandardCharsets.UTF_8);
         return ApiResponse.ok(JSONObject.parseObject(result));
     }

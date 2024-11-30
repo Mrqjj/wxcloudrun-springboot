@@ -244,7 +244,6 @@ public class HttpUtils {
                     if (body instanceof byte[]) {
                         HttpEntity entity = new ByteArrayEntity((byte[]) body);
                         httpPost.setEntity(entity);
-
                     } else if (body instanceof String) {
                         HttpEntity entity = new StringEntity(body.toString());
                         httpPost.setEntity(entity);
