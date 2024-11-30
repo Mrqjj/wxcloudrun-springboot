@@ -34,6 +34,10 @@ import java.util.List;
 
 public class CounterController {
 
+    public static String accessToken = "";
+    private static long expiresTime = 0;
+
+
     final CounterService counterService;
     final Logger logger;
 
@@ -121,6 +125,26 @@ public class CounterController {
     }
 
 
+    @PostMapping(value = "/api/getUserPhoneInfo")
+    ApiResponse getUserPhoneInfo(HttpServletRequest httpReq, @RequestBody BodyRequest request) {
+        String code = request.getJsCode();
+        if (expiresTime < System.currentTimeMillis()) {
+            String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx8b4b0fa894795915&secret=c4aea564db0adf169bff47e1f52d2eec";
+            byte[] res = HttpUtils.sendGetRequest(url, null);
+            String result = new String(res, StandardCharsets.UTF_8);
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            accessToken = jsonObject.getString("access_token");
+            expiresTime = System.currentTimeMillis() + (jsonObject.getLong("expires_in") * 1000) - 60 * 1000 * 5;
+        }
+        String url = "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=" + accessToken;
+        JSONObject body = new JSONObject();
+        body.put("code", code);
+        byte[] res = HttpUtils.sendPostRequest(url,body,null);
+        String result = new String(res, StandardCharsets.UTF_8);
+        return ApiResponse.ok(JSONObject.parseObject(result));
+    }
+
+
     public static ApiResponse decrypt(String encryptedData, String key, String iv) {
         // 转换密钥和IV为字节数组
         try {
@@ -137,9 +161,9 @@ public class CounterController {
             // 执行解密
             byte[] plainBytes = cipher.doFinal(cipherBytes);
             // 返回解密后的明文字符串
-            return new ApiResponse(0,"",new String(plainBytes, StandardCharsets.UTF_8));
+            return new ApiResponse(0, "", new String(plainBytes, StandardCharsets.UTF_8));
         } catch (Exception e) {
-            return new ApiResponse(500,e.getMessage(),null);
+            return new ApiResponse(500, e.getMessage(), null);
         }
     }
 
