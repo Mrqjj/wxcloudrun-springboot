@@ -138,7 +138,7 @@ public class CounterController {
         body.put("code", code);
         HashMap headerMap = new HashMap();
         headerMap.put("Content-Type", "application/json");
-        byte[] res = HttpUtils.sendPostRequest(url,body.toJSONString(),headerMap);
+        byte[] res = HttpUtils.sendPostRequest(url, body.toJSONString(), headerMap);
         String result = new String(res, StandardCharsets.UTF_8);
         return ApiResponse.ok(JSONObject.parseObject(result));
     }
@@ -160,9 +160,10 @@ public class CounterController {
         body.put("openid", httpReq.getParameter("x-wx-openid"));
         body.put("scene", 0);
         body.put("client_ip", httpReq.getHeader("x-original-forwarded-for"));
-        HashMap headerMap = new HashMap();
+        HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Content-Type", "application/json");
-        byte[] res = HttpUtils.sendPostRequest(url,body.toJSONString(),headerMap);
+        logger.info("getUserRiskRank requestBody : {}", body.toJSONString());
+        byte[] res = HttpUtils.sendPostRequest(url, body, headerMap);
         String result = new String(res, StandardCharsets.UTF_8);
         return ApiResponse.ok(JSONObject.parseObject(result));
     }
