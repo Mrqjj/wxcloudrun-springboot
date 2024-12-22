@@ -159,7 +159,7 @@ public class CounterController {
         body.put("appid", "wx8b4b0fa894795915");
         body.put("openid", httpReq.getParameter("x-wx-openid"));
         body.put("scene", 0);
-        body.put("client_Ip", httpReq.getHeader("x-original-forwarded-for"));
+        body.put("client_ip", httpReq.getHeader("x-original-forwarded-for"));
         HashMap headerMap = new HashMap();
         headerMap.put("Content-Type", "application/json");
         byte[] res = HttpUtils.sendPostRequest(url,body.toJSONString(),headerMap);
