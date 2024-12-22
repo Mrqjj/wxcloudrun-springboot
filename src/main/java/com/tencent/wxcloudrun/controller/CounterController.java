@@ -157,7 +157,7 @@ public class CounterController {
         String url = "https://api.weixin.qq.com/wxa/getuserriskrank?access_token=" + accessToken;
         JSONObject body = new JSONObject();
         body.put("appid", "wx8b4b0fa894795915");
-        body.put("openid", httpReq.getParameter("x-wx-openid"));
+        body.put("openid", httpReq.getHeader("x-wx-openid"));
         body.put("scene", 0);
         body.put("client_ip", httpReq.getHeader("x-original-forwarded-for"));
         HashMap<String, String> headerMap = new HashMap<String, String>();
